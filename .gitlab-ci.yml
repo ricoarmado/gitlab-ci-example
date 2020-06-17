@@ -1,0 +1,16 @@
+stages:
+    - deploy
+
+deploy:
+    stage: deploy
+    image: stanislavtyrsa/scp
+    only:
+        - master
+    before_script:
+        - export USER_HOST="$SERVER_USER@$SERVER_HOST"
+        - echo "$USER_HOST"
+        - export SSHPASS=$SERVER_PASSWORD
+    script:
+        - deploy/tpleval.sh < deploy/db.tpl > config/db.php
+        - sshpass -e scp -o stricthostkeychecking=no -r * $USER_HOST:$SERVER_ROOT
+    when: manual
